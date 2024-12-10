@@ -8,4 +8,5 @@ add_library(3DMazeMod SHARED library.c
         Utils/EXEPatchUtils.h
         Utils/General.h
         MazeAddrs.h
-        Utils/General.c)
+        Utils/General.c
+)

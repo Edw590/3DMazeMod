@@ -19,14 +19,14 @@ static void writeMem(uint32_t addr, uint64_t data, uint32_t n_bytes) {
 		return;
 	}
 
-	uint8_t *fixed_addr = (uint8_t *) addr;
+	uint8_t *addr_cast = (uint8_t *) addr;
 
 	DWORD old_protect;
-	VirtualProtect((void *)addr, n_bytes, PAGE_EXECUTE_READWRITE, &old_protect);
-	for (int i = 0; i <= n_bytes - 1; ++i) {
-		*(fixed_addr+i) = (uint8_t) (data >> i*8u);
+	VirtualProtect((void *) addr, n_bytes, PAGE_EXECUTE_READWRITE, &old_protect);
+	for (int i = 0; i < n_bytes; ++i) {
+		*(addr_cast + i) = (uint8_t) (data >> i * 8u);
 	}
-	VirtualProtect((void *)addr, n_bytes, old_protect, &old_protect);
+	VirtualProtect((void *) addr, n_bytes, old_protect, &old_protect);
 }
 void writeMem64(uint32_t addr, uint64_t data) {
 	writeMem(addr, data, sizeof(uint64_t));
@@ -47,10 +47,10 @@ static uint64_t readMem(void *addr, uint32_t n_bytes) {
 		return ret_var;
 	}
 
-	uint8_t *fixed_addr = addr;
+	uint8_t *addr_cast = addr;
 
-	for (int i = 0; i <= n_bytes - 1; ++i) {
-		ret_var |= ((uint32_t) *fixed_addr) << i*8;
+	for (int i = 0; i < n_bytes; ++i) {
+		ret_var |= ((uint32_t) *addr_cast) << i*8;
 	}
 
 	return ret_var;
@@ -72,14 +72,9 @@ uint8_t readMem8(void *addr) {
 void makeCall(uint32_t addr, funcptr_t (func_ptr), bool jump, bool ds_addr) {
 	if (ds_addr) {
 		writeMem16(addr, jump ? 0x25FF : 0x15FF);
-	} else {
-		writeMem8(addr, jump ? 0xE9 : 0xE8);
-	}
-
-	uint16_t two_bytes = readMem16((void *) addr);
-	if (two_bytes == 0x15FF || two_bytes == 0x25FF) {
 		writeMem32(addr + 2, (uint32_t) (func_ptr));
 	} else {
+		writeMem8(addr, jump ? 0xE9 : 0xE8);
 		writeMem32(addr + 1, (uint32_t) (func_ptr) - ((uint32_t) (addr) + 5));
 	}
 }

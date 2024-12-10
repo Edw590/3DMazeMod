@@ -52,8 +52,6 @@ void mainLoopHook() {
 	if (current_monitor_GL >= num_monitors_GL) {
 		current_monitor_GL = 0;
 	}
-
-	Sleep(1/(60*num_monitors_GL));
 }
 
 void handlesPreps() {
@@ -94,7 +92,7 @@ void handlesPreps() {
 
 void __declspec(naked) handlesPrepsWrapper() {
 	__asm {
-			call    dword ptr SetupInitialWindows
+			call    dword ptr SetupInitialWindows_EXE
 			pusha
 			call    handlesPreps
 			popa
@@ -151,7 +149,7 @@ void createAddWindows() {
 
 void __declspec(naked) createWindows() {
 	__asm {
-			call    dword ptr CreateSSWindow
+			call    dword ptr CreateSSWindow_EXE
 			call    createAddWindows
 			mov     eax, 1
 
@@ -216,30 +214,15 @@ void __declspec(naked) getWindowParams() {
 	}
 }
 
-void __declspec(naked) replaceGetMessage() {
+void __declspec(naked) updateWindowHook() {
 	__asm {
-		start:
-			lea     eax, [ebp-0x1C]
-			push    1
-			push    0
-			push    0
-			push    0
-			push    eax
-			call    dword ptr ds:[PeekMessageW_EXE]
-			test    eax, eax
-			jz      start
-			lea     eax, [ebp-0x1C]
-			push    eax
-			call    dword ptr ds:[TranslateMessage_EXE]
-			lea     eax, [ebp-0x1C]
-			push    eax
-			call    dword ptr ds:[DispatchMessageW_EXE]
+			call    dword ptr UpdateWindow_EXE
+
+			pusha
 			call    mainLoopHook
+			popa
 
-			cmp     dword ptr [ebp-0x18], 0x12
-			jne     start
-
-			push    0x1008E93
+			push    0x100BA8C
 			ret
 	}
 }
@@ -255,6 +238,13 @@ BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 	monitors_GL[num_monitors_GL].width = info.rcMonitor.right - info.rcMonitor.left;
 	monitors_GL[num_monitors_GL].height = info.rcMonitor.bottom - info.rcMonitor.top;
 
+	//MessageBoxPrintf("Test", "Monitor %d has %d pixels wide by %d pixels high.",
+	//				 num_monitors_GL,
+	//				 monitors_GL[num_monitors_GL].width, monitors_GL[num_monitors_GL].height);
+	//MessageBoxPrintf("Test", "Monitor %d has right=%d, left=%d, top=%d, bottom=%d.",
+	//				 !monitors_GL[num_monitors_GL].primary,
+	//				 info.rcMonitor.right, info.rcMonitor.left, info.rcMonitor.top, info.rcMonitor.bottom);
+
 	num_monitors_GL++;
 
 	return TRUE;
@@ -269,8 +259,10 @@ BOOL __stdcall DllMain(HMODULE module, DWORD reason, LPVOID reserved) {
 
 	EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, 0);
 
+	//-MessageBoxPrintf("Test", "Monitors detected: %d", num_monitors_GL);
+
 	// Replace GetMessage by PeekMessage on the main message loop
-	makeCall(0x1008E5B, replaceGetMessage, true, false);
+	makeCall(0x100BA87, updateWindowHook, true, false);
 
 	makeCall(0x10096D2, getWindowParams, true, false); // 1st
 	makeCall(0x1009A2A, storeAndShareHandles, true, false); // 4th

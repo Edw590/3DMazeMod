@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "General.h"
 
-int CDECL MessageBoxPrintf(TCHAR * szCaption, TCHAR * szFormat, ...) {
+int MessageBoxPrintf(TCHAR * szCaption, TCHAR * szFormat, ...) {
 	TCHAR szBuffer [1024];
 	va_list pArgList;
 

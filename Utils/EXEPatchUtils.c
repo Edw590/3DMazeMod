@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "EXEPatchUtils.h"
 
-// Copied and adapted from F1DP (Fallout 1 DOS Patcher).
+// Copied, adapted and updated from F1DP (Fallout 1 DOS Patcher).
 
 // All these functions suppose `addr` is an address value seen on IDA as the value if the EXE would load in its supposed
 // address, 0x10000 (for the code section), and something else for the data section. This is important because they

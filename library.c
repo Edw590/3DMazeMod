@@ -93,7 +93,7 @@ void __declspec(naked) handlesPrepsWrapper() {
 	}
 }
 
-BOOL createAddWindows() {
+bool createAddWindows() {
 	for (int i = 0; i < num_monitors_GL; i++) {
 		struct MonitorInfo *monitor = &monitors_GL[i];
 		if (monitor->primary) {

@@ -35,7 +35,8 @@ int num_prim_monitor_GL = 0;
 
 void mainLoopHook() {
 	for (int i = 0; i < num_monitors_GL; i++) {
-		if (monitors_GL[i].primary) {
+		struct MonitorInfo monitor_info = monitors_GL[i];
+		if (monitor_info.primary) {
 			continue;
 		}
 
@@ -46,12 +47,16 @@ void mainLoopHook() {
 				call    ds:[glGetIntegerv_EXE]
 		}
 
-		struct MonitorInfo monitor_info = monitors_GL[i];
-		HDC target_hdc = monitor_info.hdc;
-		int target_width = monitor_info.width;
-		int target_height = monitor_info.height;
-		StretchBlt(target_hdc, 0, 0, target_width, target_height, monitors_GL[num_prim_monitor_GL].hdc, viewport[0],
-				   viewport[1], viewport[2], viewport[3], SRCCOPY);
+		bool full_screen_mode = readMem8((void *) gbTurboMode);
+		if (full_screen_mode) {
+			StretchBlt(monitor_info.hdc, 0, 0, monitor_info.width, monitor_info.height,
+					   monitors_GL[num_prim_monitor_GL].hdc, viewport[0], viewport[1], viewport[2], viewport[3],
+					   SRCCOPY);
+		} else {
+			StretchBlt(monitor_info.hdc, viewport[0], viewport[1], viewport[2], viewport[3],
+			           monitors_GL[num_prim_monitor_GL].hdc, viewport[0], viewport[1], viewport[2], viewport[3],
+					   SRCCOPY);
+		}
 
 		free(viewport);
 	}

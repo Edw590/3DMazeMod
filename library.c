@@ -31,7 +31,6 @@ int num_monitors_GL = 0;
 struct MonitorInfo monitors_GL[MAX_MONITORS_EDW590] = {0};
 struct WindowParams window_params_GL = {0};
 
-int current_monitor_GL = 0;
 int num_prim_monitor_GL = 0;
 
 void mainLoopHook() {
@@ -51,9 +50,23 @@ void mainLoopHook() {
 		HDC target_hdc = monitor_info.hdc;
 		int target_width = monitor_info.width;
 		int target_height = monitor_info.height;
-		StretchBlt(target_hdc, 0, 0, target_width, target_height, monitors_GL[num_prim_monitor_GL].hdc, viewport[0], viewport[1], viewport[2], viewport[3], SRCCOPY);
+		StretchBlt(target_hdc, 0, 0, target_width, target_height, monitors_GL[num_prim_monitor_GL].hdc, viewport[0],
+				   viewport[1], viewport[2], viewport[3], SRCCOPY);
 
 		free(viewport);
+	}
+}
+
+void __declspec(naked) updateWindowHook() {
+	__asm {
+			call    UpdateWindow_EXE
+
+			pusha
+			call    mainLoopHook
+			popa
+
+			push    0x100BA8C
+			ret
 	}
 }
 
@@ -188,38 +201,30 @@ void __declspec(naked) getWindowParams() {
 	}
 }
 
-void __declspec(naked) updateWindowHook() {
-	__asm {
-			call    UpdateWindow_EXE
 
-			pusha
-			call    mainLoopHook
-			popa
-
-			push    0x100BA8C
-			ret
-	}
-}
 
 BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
 	MONITORINFO info;
 	info.cbSize = sizeof(MONITORINFO);
 	GetMonitorInfo(hMonitor, &info);
 
-	monitors_GL[num_monitors_GL].primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
-	monitors_GL[num_monitors_GL].x = info.rcMonitor.left;
-	monitors_GL[num_monitors_GL].y = info.rcMonitor.top;
-	monitors_GL[num_monitors_GL].width = info.rcMonitor.right - info.rcMonitor.left;
-	monitors_GL[num_monitors_GL].height = info.rcMonitor.bottom - info.rcMonitor.top;
+	struct MonitorInfo *monitor_info = &monitors_GL[num_monitors_GL];
+	monitor_info->primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
+	monitor_info->x = info.rcMonitor.left;
+	monitor_info->y = info.rcMonitor.top;
+	monitor_info->width = info.rcMonitor.right - info.rcMonitor.left;
+	monitor_info->height = info.rcMonitor.bottom - info.rcMonitor.top;
 
 	num_monitors_GL++;
+
+	if (num_monitors_GL >= MAX_MONITORS_EDW590) {
+		return FALSE;
+	}
 
 	return TRUE;
 }
 
-
-
-BOOL __stdcall DllMain(HMODULE module, DWORD reason, LPVOID reserved) {
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved) {
 	if (reason != DLL_PROCESS_ATTACH) {
 		return TRUE;
 	}

@@ -4,7 +4,7 @@
 #include "Utils/EXEPatchUtils.h"
 #include "MazeAddrs.h"
 
-#define MAX_MONITORS_EDW590 10
+#define MAX_MONITORS_EDW590 100
 
 struct MonitorInfo {
 	bool primary;

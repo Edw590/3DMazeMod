@@ -24,6 +24,7 @@
 #include "MazeAddrs.h"
 
 #define MAX_MONITORS_EDW590 100
+#define INI_PATH ".\\3DMazeMod.ini"
 
 struct MonitorInfo {
 	bool primary;
@@ -52,7 +53,13 @@ struct WindowParams window_params_GL = {0};
 
 int num_prim_monitor_GL = 0;
 
+bool duplicate_GL = true;
+
 void mainLoopHook() {
+	if (!duplicate_GL) {
+		return;
+	}
+
 	for (int i = 0; i < num_monitors_GL; i++) {
 		struct MonitorInfo monitor_info = monitors_GL[i];
 		if (monitor_info.primary) {
@@ -131,30 +138,48 @@ void __declspec(naked) handlesPrepsWrapper() {
 }
 
 bool createWindows() {
-	for (int i = 0; i < num_monitors_GL; i++) {
-		struct MonitorInfo *monitor = &monitors_GL[i];
-		if (monitor->primary) {
-			num_prim_monitor_GL = i;
+	if (duplicate_GL) {
+		for (int i = 0; i < num_monitors_GL; i++) {
+			struct MonitorInfo *monitor = &monitors_GL[i];
+			if (monitor->primary) {
+				num_prim_monitor_GL = i;
 
-			continue;
+				continue;
+			}
+
+			monitor->hWnd = CreateWindowExW(
+					window_params_GL.dwExStyle,
+					(LPCWSTR) window_params_GL.lpClassName,
+					(LPCWSTR) window_params_GL.lpWindowName,
+					window_params_GL.dwStyle,
+					monitor->x,
+					monitor->y,
+					monitor->width,
+					monitor->height,
+					(HWND) window_params_GL.hWndParent,
+					(HMENU) window_params_GL.hMenu,
+					(HINSTANCE) window_params_GL.hInstance,
+					(LPVOID) window_params_GL.lpParam
+			);
+
+			ShowWindow(monitor->hWnd, SW_SHOW);
 		}
+	}
 
-		monitor->hWnd = CreateWindowExW(
-				window_params_GL.dwExStyle,
-				(LPCWSTR) window_params_GL.lpClassName,
-				(LPCWSTR) window_params_GL.lpWindowName,
-				window_params_GL.dwStyle,
-				monitor->x,
-				monitor->y,
-				monitor->width,
-				monitor->height,
-				(HWND) window_params_GL.hWndParent,
-				(HMENU) window_params_GL.hMenu,
-				(HINSTANCE) window_params_GL.hInstance,
-				(LPVOID) window_params_GL.lpParam
-		);
-
-		ShowWindow(monitor->hWnd, SW_SHOW);
+	int x = 0;
+	int y = 0;
+	int width = 0;
+	int height = 0;
+	if (duplicate_GL) {
+		x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	} else {
+		x = monitors_GL[num_prim_monitor_GL].x;
+		y = monitors_GL[num_prim_monitor_GL].y;
+		width = monitors_GL[num_prim_monitor_GL].width;
+		height = monitors_GL[num_prim_monitor_GL].height;
 	}
 
 	// Primary goes last to be the main window (for some reason that needs to be the last created one)
@@ -164,10 +189,10 @@ bool createWindows() {
 			(LPCWSTR) window_params_GL.lpClassName,
 			(LPCWSTR) window_params_GL.lpWindowName,
 			window_params_GL.dwStyle,
-			monitor->x,
-			monitor->y,
-			monitor->width,
-			monitor->height,
+			x,
+			y,
+			width,
+			height,
 			(HWND) window_params_GL.hWndParent,
 			(HMENU) window_params_GL.hMenu,
 			(HINSTANCE) window_params_GL.hInstance,
@@ -255,18 +280,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved) {
 
 	EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, 0);
 
-	// If there's only one monitor, there's no need to do anything.
-	if (num_monitors_GL <= 1) {
-		return TRUE;
+	duplicate_GL = GetPrivateProfileIntA("Main", "Duplicate", 1, INI_PATH);
+
+	// Only patch the EXE with multi-monitor stuff if there's more than one monitor.
+	if (num_monitors_GL > 1) {
+		makeCall(0x100BA87, updateWindowHook, true, false);
+
+		makeCall(0x10096D2, getWindowParams, true, false);
+		makeCall(0x1009A2A, storePrimMonitorHandlesWrapper, true, false);
+
+		makeCall(0x10090B1, createWindowsWrapper, true, false);
+		makeCall(0x1008E52, handlesPrepsWrapper, true, false);
 	}
-
-	makeCall(0x100BA87, updateWindowHook, true, false);
-
-	makeCall(0x10096D2, getWindowParams, true, false);
-	makeCall(0x1009A2A, storePrimMonitorHandlesWrapper, true, false);
-
-	makeCall(0x10090B1, createWindowsWrapper, true, false);
-	makeCall(0x1008E52, handlesPrepsWrapper, true, false);
 
 	return TRUE;
 }

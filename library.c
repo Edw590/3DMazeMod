@@ -130,7 +130,7 @@ void __declspec(naked) handlesPrepsWrapper() {
 	}
 }
 
-bool createAddWindows() {
+bool createWindows() {
 	for (int i = 0; i < num_monitors_GL; i++) {
 		struct MonitorInfo *monitor = &monitors_GL[i];
 		if (monitor->primary) {
@@ -179,10 +179,10 @@ bool createAddWindows() {
 	return monitor->hWnd != NULL;
 }
 
-void __declspec(naked) createWindows() {
+void __declspec(naked) createWindowsWrapper() {
 	__asm {
 			call    CreateSSWindow_EXE
-			call    createAddWindows
+			call    createWindows
 
 			push    0x10090B6
 			ret
@@ -265,7 +265,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved) {
 	makeCall(0x10096D2, getWindowParams, true, false);
 	makeCall(0x1009A2A, storePrimMonitorHandlesWrapper, true, false);
 
-	makeCall(0x10090B1, createWindows, true, false);
+	makeCall(0x10090B1, createWindowsWrapper, true, false);
 	makeCall(0x1008E52, handlesPrepsWrapper, true, false);
 
 	return TRUE;

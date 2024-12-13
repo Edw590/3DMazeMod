@@ -1,3 +1,22 @@
+// Copyright 2024 Edw590
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 #include <windows.h>
 #include <wingdi.h>
 #include <gl/GL.h>
@@ -243,11 +262,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved) {
 
 	makeCall(0x100BA87, updateWindowHook, true, false);
 
-	makeCall(0x10096D2, getWindowParams, true, false); // 1st
-	makeCall(0x1009A2A, storePrimMonitorHandlesWrapper, true, false); // 4th
+	makeCall(0x10096D2, getWindowParams, true, false);
+	makeCall(0x1009A2A, storePrimMonitorHandlesWrapper, true, false);
 
-	makeCall(0x10090B1, createWindows, true, false); // 2nd
-	makeCall(0x1008E52, handlesPrepsWrapper, true, false); // 3rd
+	makeCall(0x10090B1, createWindows, true, false);
+	makeCall(0x1008E52, handlesPrepsWrapper, true, false);
 
 	return TRUE;
 }

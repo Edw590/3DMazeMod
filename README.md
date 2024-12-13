@@ -32,5 +32,7 @@ After some time I decided to finally move to making and injecting a DLL (for the
 
 So the project is written in C + Inline Assembly. The Inline Assembly is to patch directly the EXE, while C code is called from the Assembly instructions. I took ideas and functions from F1DP.
 
+Note: to get some functions to be accessible from the EXE, I had to find a way to insert the references to the functions in the EXE (to the PE's IID) - I used `IIDKing 2.01` by SantMat as suggested by the book `Portable Executable File Format - A Reverse Engineer View`. Later I realized the functions were no longer needed and so I removed all references again, but the program was very useful to test other approaches until I got to the working one.
+
 ## License
 This project is licensed under Apache 2.0 License -  [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).

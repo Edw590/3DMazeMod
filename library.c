@@ -54,6 +54,7 @@ struct WindowParams window_params_GL = {0};
 int num_prim_monitor_GL = 0;
 
 bool duplicate_GL = true;
+uint32_t n_rats_GL = 1;
 
 void mainLoopHook() {
 	if (!duplicate_GL) {
@@ -250,6 +251,18 @@ void __declspec(naked) getWindowParams() {
 	}
 }
 
+void __declspec(naked) nRatsChanger() {
+	__asm {
+			pusha
+			mov     eax, 0x1019D28
+			mov     ebx, n_rats_GL
+			mov     [eax], ebx
+			popa
+
+			ret
+	}
+}
+
 
 
 BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
@@ -281,6 +294,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD reason, LPVOID reserved) {
 	EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, 0);
 
 	duplicate_GL = GetPrivateProfileIntA("Main", "Duplicate", 1, INI_PATH);
+	n_rats_GL = GetPrivateProfileIntA("Main", "NumberOfRats", 1, INI_PATH);
+	if (n_rats_GL > 10) {
+		n_rats_GL = 10;
+	}
+
+	makeCall(0x1006282, nRatsChanger, false, false);
 
 	// Only patch the EXE with multi-monitor stuff if there's more than one monitor.
 	if (num_monitors_GL > 1) {

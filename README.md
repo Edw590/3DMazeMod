@@ -8,7 +8,7 @@ This is a mod to enable multi-monitor support on the 3D Maze Windows 95 screensa
 - Right click the SCR file and click Install.
 - Configure it and that's it!
 
-Tested and working on 2 and 3 monitors. If only one monitor is attached to the computer, the mod doesn't do anything at all and lets the screensaver do its normal job.
+Tested and working on 2 and 3 monitors (should work on any number of monitors though). If only one monitor is attached to the computer, the mod doesn't do anything at all and lets the screensaver do its normal job.
 
 ## Download
 Go to the [Releases](https://github.com/Edw590/3DMazeMod/releases) and download the most recent one.

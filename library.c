@@ -23,8 +23,8 @@
 #include "Utils/EXEPatchUtils.h"
 #include "MazeAddrs.h"
 
-#define MAX_MONITORS_EDW590 100
 #define INI_PATH ".\\3DMazeMod.ini"
+#define MAX_MONITORS_EDW590 100
 
 struct MonitorInfo {
 	bool primary;
@@ -173,15 +173,15 @@ bool createWindows() {
 	int width = 0;
 	int height = 0;
 	if (duplicate_GL) {
-		x = GetSystemMetrics(SM_XVIRTUALSCREEN);
-		y = GetSystemMetrics(SM_YVIRTUALSCREEN);
-		width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-		height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	} else {
 		x = monitors_GL[num_prim_monitor_GL].x;
 		y = monitors_GL[num_prim_monitor_GL].y;
 		width = monitors_GL[num_prim_monitor_GL].width;
 		height = monitors_GL[num_prim_monitor_GL].height;
+	} else {
+		x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 	}
 
 	// Primary goes last to be the main window (for some reason that needs to be the last created one)

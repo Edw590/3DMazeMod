@@ -34,5 +34,13 @@ So the project is written in C + Inline Assembly. The Inline Assembly is to patc
 
 Note: to get some functions to be accessible from the EXE, I had to find a way to insert the references to the functions in the EXE (to the PE's IID) - I used `IIDKing 2.01` by SantMat as suggested by the book `Portable Executable File Format - A Reverse Engineer View`. Later I realized the functions were no longer needed and so I removed all references again, but the program was very useful to test other approaches until I got to the working one.
 
+Note 2: in the middle of the path I got my hands on the source of the maze program. Apparently it comes with Visual Studio 5 from 1997. I don't know how to compile it, so I kept patching the already compiled program and used the source as a guide for the mods. Was still really cool to manage to:
+- create a new section on the PE file and add code to it that could be called from the original code section;
+- create a new window;
+- switch the windows between monitors very fast;
+- share the textures and switch the context to the second monitor.
+
+Only didn't do more because would be nonsense when I could just learn to code a DLL and do it mostly in C.
+
 ## License
 This project is licensed under Apache 2.0 License -  [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).

@@ -3,10 +3,10 @@
 This is a mod to enable multi-monitor support on the 3D Maze Windows 95 screensaver.
 
 ## How to use
-- **You need to enable "Full Screen" mode on the configurations for this to work properly**, or else you'll most likely see a black screen on the other monitors ("most likely" because sometimes it decides to render the maze on them with full screen mode off - no idea why it doesn't just render it. It seems to only render when there's a notification that appears above the screensaver).
-- Download and copy the 2 files to some folder of your choice.
+- **You need to enable "Full Screen" mode on the configurations for the multi-monitor support to work properly**, or else you'll most likely see a black screen on the other monitors ("most likely" because sometimes it decides to render the maze on them with full screen mode off - no idea why it doesn't just always render it. It seems to only render when there's a notification that appears above the screensaver for some reason).
+- Download and copy the 3 files to some folder of your choice.
 - Right click the SCR file and click Install.
-- Configure it and that's it!
+- Configure it through the window and from the INI file and that's it!
 
 Tested and working on 2 and 3 monitors (should work on any number of monitors though). If only one monitor is attached to the computer, the mod doesn't do anything at all and lets the screensaver do its normal job.
 
